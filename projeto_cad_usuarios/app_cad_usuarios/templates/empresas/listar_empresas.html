@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Empresas</title>
+</head>
+<body>
+    <h1>Empresas Associadas</h1>
+    <ul>
+        {% for empresa in empresas %}
+            <li>{{ empresa.nome }}
+                <!-- Link para criar projeto -->
+                <a href="{% url 'criar_projeto' empresa.id %}">Criar Projeto</a>
+                <!-- Link para excluir empresa (somente se for o criador) -->
+                {% if empresa.criador.id_usuario == request.session.user %}
+                    <a href="{% url 'excluir_empresa' empresa.id %}">Excluir Empresa</a>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

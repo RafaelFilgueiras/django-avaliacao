@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Dashboard</title>
+</head>
+<body>
+    <div class="container" style="margin-top: 20px;">
+        <h1>Bem-vindo, {{ usuario.user }}</h1>
+        
+        <p>Gerencie suas empresas e projetos:</p>
+        
+        <!-- Lista de empresas criadas pelo usuário -->
+        <h2>Minhas Empresas</h2>
+        <ul class="list-group">
+            {% for empresa in minhas_empresas %}
+                <li class="list-group-item">
+                    <strong>{{ empresa.nome }}</strong>
+                    <!-- Botões para criar e excluir empresa -->
+                    <a href="{% url 'criar_projeto' empresa.id %}" class="btn btn-success btn-sm">Criar Projeto</a>
+                    {% if empresa.criador.id_usuario == usuario.id_usuario %}
+                        <a href="{% url 'excluir_empresa' empresa.id %}" class="btn btn-danger btn-sm">Excluir Empresa</a>
+                    {% endif %}
+                    
+                    <!-- Formulário para adicionar usuários à empresa (apenas para o criador da empresa) -->
+                    {% if empresa.criador.id_usuario == usuario.id_usuario %}
+                        <form action="{% url 'adicionar_usuario_empresa' empresa.id %}" method="post" style="margin-top: 10px;">
+                            {% csrf_token %}
+                            <input type="text" name="usuario_nome" placeholder="Adicionar usuário à empresa">
+                            <button type="submit" class="btn btn-sm btn-primary">Adicionar</button>
+                        </form>
+                    {% endif %}
+
+                    <!-- Lista de usuários associados à empresa -->
+                    <h4>Usuários na empresa</h4>
+                    <ul>
+                        {% for relacao in empresa.pessoas_empresas.all %}
+                            <li>
+                                {{ relacao.usuario.user }}
+                                <!-- Botão para remover usuário da empresa -->
+                                {% if empresa.criador.id_usuario == usuario.id_usuario %}
+                                    <a href="{% url 'remover_usuario_empresa' empresa.id relacao.usuario.id_usuario %}" class="btn btn-danger btn-sm">Remover</a>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    
+                    <h3>Projetos</h3>
+                    <ul class="list-group">
+                        <!-- Projetos criados pelo usuário -->
+                        {% for projeto in projetos_criados %}
+                            {% if projeto.empresa == empresa %}
+                                <li class="list-group-item">
+                                    {{ projeto.nome }} - Criado por: {{ projeto.criador.user }}
+                                    <!-- Botões para ver e excluir projeto -->
+                                    <a href="{% url 'ver_projeto' projeto.id %}" class="btn btn-primary btn-sm">Ver Projeto</a>
+                                    {% if projeto.criador.id_usuario == usuario.id_usuario %}
+                                        <a href="{% url 'excluir_projeto' projeto.id %}" class="btn btn-danger btn-sm">Excluir Projeto</a>
+                                    {% endif %}
+                                    
+                                    <!-- Adicionar e remover usuários (apenas se o usuário for o criador do projeto) -->
+                                    {% if projeto.criador.id_usuario == usuario.id_usuario %}
+                                        <form action="{% url 'adicionar_usuario_projeto' projeto.id %}" method="post">
+                                            {% csrf_token %}
+                                            <input type="text" name="usuario_nome" placeholder="Adicionar usuário">
+                                            <button type="submit" class="btn btn-sm btn-primary">Adicionar</button>
+                                        </form>
+                                    {% endif %}
+                                    
+                                    <!-- Lista de usuários associados ao projeto -->
+                                    <ul>
+                                        {% for relacao in projeto.pessoas_projetos.all %}
+                                            <li>
+                                                {{ relacao.usuario.user }}
+                                                <!-- Botão para remover usuário -->
+                                                {% if projeto.criador.id_usuario == usuario.id_usuario %}
+                                                    <a href="{% url 'remover_usuario_projeto' projeto.id relacao.usuario.id_usuario %}" class="btn btn-danger btn-sm">Remover</a>
+                                                {% endif %}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+        
+        <!-- Lista de empresas em que o usuário participa -->
+        <h2>Empresas em que Participo</h2>
+        <ul class="list-group">
+            {% for empresa in empresas_participando %}
+                <li class="list-group-item">
+                    <strong>{{ empresa.nome }}</strong>
+                    <!-- Botão para criar projeto (qualquer membro da empresa) -->
+                    <a href="{% url 'criar_projeto' empresa.id %}" class="btn btn-success btn-sm">Criar Projeto</a>
+                    
+                    <h3>Projetos</h3>
+                    <ul class="list-group">
+                        <!-- Projetos onde o usuário participa -->
+                        {% for projeto in projetos_participando %}
+                            {% if projeto.empresa == empresa %}
+                                <li class="list-group-item">
+                                    {{ projeto.nome }} - Criado por: {{ projeto.criador.user }}
+                                    <!-- Botão para ver detalhes do projeto -->
+                                    <a href="{% url 'ver_projeto' projeto.id %}" class="btn btn-primary btn-sm">Ver Projeto</a>
+                                    
+                                    <!-- Permitir que o criador do projeto exclua e gerencie usuários -->
+                                    {% if projeto.criador.id_usuario == usuario.id_usuario %}
+                                        <a href="{% url 'excluir_projeto' projeto.id %}" class="btn btn-danger btn-sm">Excluir Projeto</a>
+                                        
+                                        <!-- Adicionar usuários ao projeto -->
+                                        <form action="{% url 'adicionar_usuario_projeto' projeto.id %}" method="post">
+                                            {% csrf_token %}
+                                            <input type="text" name="usuario_nome" placeholder="Adicionar usuário">
+                                            <button type="submit" class="btn btn-sm btn-primary">Adicionar</button>
+                                        </form>
+                                    {% endif %}
+                                    
+                                    <!-- Lista de usuários associados ao projeto -->
+                                    <ul>
+                                        {% for relacao in projeto.pessoas_projetos.all %}
+                                            <li>
+                                                {{ relacao.usuario.user }}
+                                                <!-- Botão para remover usuário -->
+                                                {% if projeto.criador.id_usuario == usuario.id_usuario %}
+                                                    <a href="{% url 'remover_usuario_projeto' projeto.id relacao.usuario.id_usuario %}" class="btn btn-danger btn-sm">Remover</a>
+                                                {% endif %}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+        
+        <!-- Links para criar empresa e voltar para home -->
+        <a href="{% url 'criar_empresa' %}" class="btn btn-primary mt-3">Criar Empresa</a>
+        <a href="{% url 'home' %}" class="btn btn-secondary mt-3">Voltar</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

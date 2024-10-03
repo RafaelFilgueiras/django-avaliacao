@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Criar Empresa</title>
+</head>
+<body>
+    <div class="container" style="margin-top: 20px;">
+        <h1>Criar Nova Empresa</h1>
+        <form method="post">
+            {% csrf_token %}
+            Nome da Empresa: <input type="text" name="nome">
+            <button type="submit" class="btn btn-primary">Criar Empresa</button>
+        </form>
+        
+        <!-- Botão de Voltar -->
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary mt-3">Voltar</a>
+    </div>
+</body>
+</html>

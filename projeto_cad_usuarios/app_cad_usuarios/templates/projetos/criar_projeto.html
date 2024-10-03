@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Criar Projeto</title>
+</head>
+<body>
+    <div class="container" style="margin-top: 20px;">
+        <h1>Criar Novo Projeto para {{ empresa.nome }}</h1>
+        <form method="post">
+            {% csrf_token %}
+            Nome do Projeto: <input type="text" name="nome"><br>
+            Descrição: <textarea name="descricao"></textarea><br>
+            <button type="submit" class="btn btn-primary">Criar Projeto</button>
+        </form>
+        
+        <!-- Botão de Voltar -->
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary mt-3">Voltar</a>
+    </div>
+</body>
+</html>
